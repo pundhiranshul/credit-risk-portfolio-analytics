@@ -91,68 +91,19 @@ def stream_text_words(text: str):
 
 
 def should_show_provenance(r: dict) -> bool:
-    """Only show provenance (Source, Cohort, Engine) for grounded analytical data questions."""
-    if not r:
-        return False
-    intent = r.get("intent", "")
-    status = r.get("status", "")
-    source = str(r.get("source", ""))
-    sample_size = str(r.get("sample_size", ""))
-
-    # Exclude chit-chat, conversational replies, and out-of-scope / declined questions
-    if intent in ("chitchat", "out_of_scope"):
-        return False
-    if status == "declined":
-        return False
-    if source in ("Portfolio Assistant Guide", "None", "") or "Boundary Guardrail" in source:
-        return False
-    if "N/A" in sample_size or "Declined" in sample_size:
-        return False
-
-    return intent == "answered" and status == "answered"
+    """Helper for provenance card display (disabled)."""
+    return False
 
 
 def render_provenance_box_html(r: dict) -> str:
-    """Helper to render the executive provenance card metadata."""
-    if not should_show_provenance(r):
-        return ""
-
-    raw_source = r.get("source", "portfolio_master.parquet")
-    samp_size = r.get("sample_size", "14,685 loan accounts")
-    
-    if "(derived from" in raw_source:
-        parts = raw_source.split("(derived from", 1)
-        source_file = parts[0].strip()
-        derived_str = parts[1].rstrip(")").strip()
-        derived_tables = [t.strip() for t in derived_str.split(",") if t.strip()]
-        derived_pills = "".join(f'<span class="prov-table-tag">{t}</span>' for t in derived_tables)
-    else:
-        source_file = raw_source
-        derived_pills = ""
-        
-    derived_html = f'<div class="gcp-prov-derived-row"><span class="prov-derived-lbl">Derived from:</span>{derived_pills}</div>' if derived_pills else ""
-    
-    return f"""<div class="gcp-provenance-box">
-        <div class="gcp-prov-chips-row">
-            <div class="gcp-prov-chip">
-                <span class="prov-icon">🗄️</span>
-                <span class="prov-key">Source:</span>
-                <span class="prov-val">{source_file}</span>
-            </div>
-            <div class="gcp-prov-chip">
-                <span class="prov-icon">👥</span>
-                <span class="prov-key">Cohort:</span>
-                <span class="prov-val">{samp_size}</span>
-            </div>
-        </div>{derived_html}
-    </div>"""
+    """Provenance metadata card is disabled per UI requirements."""
+    return ""
 
 
 def render_chat_response(r: dict, is_dark: bool):
-    """Render the assistant response card with 'Done thinking' and executive provenance metadata."""
+    """Render the assistant response card with 'Done thinking'."""
     clean_ans = color_currency(r.get("answer", ""))
     ans_html = markdown.markdown(clean_ans, extensions=["extra", "nl2br"])
-    prov_html = render_provenance_box_html(r)
     
     html_content = f"""<div class="gcp-assistant-bubble">
     <div class="gcp-status-line">
@@ -162,7 +113,6 @@ def render_chat_response(r: dict, is_dark: bool):
     <div class="gcp-answer-body">
         {ans_html}
     </div>
-    {prov_html}
 </div>"""
 
     st.markdown(html_content, unsafe_allow_html=True)
@@ -423,9 +373,6 @@ def render_ai_assistant_panel(assistant: GroundedPortfolioAssistant, is_dark: bo
                     raw_ans = resp.get("answer", "")
                     st.write_stream(stream_text_words(raw_ans))
 
-                prov_html = render_provenance_box_html(resp)
-                if prov_html:
-                    st.markdown(prov_html, unsafe_allow_html=True)
 
                 # STEP 4: Save assistant response to history so subsequent reruns don't recalculate
                 item["r"] = resp
