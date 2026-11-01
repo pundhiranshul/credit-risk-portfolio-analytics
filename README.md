@@ -45,6 +45,9 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 # Option B: OpenAI API
 OPENAI_API_KEY=your_openai_api_key_here
+
+# Set Gemini Model to be used
+GEMINI_MODEL=set_gemini_model
 ```
 
 ### Zero-Crash Deterministic Fallback (No Key Required)
