@@ -13,7 +13,7 @@
 
 ## 🛠 1. Environment Specification
 
-- **Python Version Required:** `Python 3.11` (Compatible with `3.11+`)
+- **Python Version Required:** `Python 3.12` (Compatible with `3.11+`)
 
 ---
 
